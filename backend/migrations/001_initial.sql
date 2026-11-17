@@ -1,3 +1,8 @@
 -- SQLAlchemy metadata initializes tables idempotently.
 -- Domain tables: drying_studies, drying_samples, regression_runs, process_memos.
--- Unique natural keys: source.key; (record.source_id, record.reference).
+-- Device sampling: device_streams, specimen_windows, temperature_readings,
+--                  reading_conflicts, sample_batches, generated_samples, sample_disputes.
+-- Unique natural keys: source.key; (record.source_id, record.reference);
+--                      (window.source_id, window.reference); device.key;
+--                      (reading.device_id, reading.observed_at);
+--                      (batch.idempotency_key); (generated_sample.batch_id, reference).

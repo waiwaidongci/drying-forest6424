@@ -1,0 +1,30 @@
+from fastapi import APIRouter,Depends
+from ..config.database import db_session
+from ..schemas.device import DeviceInput,WindowBatch,ReadingBatch,WatermarkInput,ConflictResolution,DisputeResolution,SealInput
+from ..services.auth import current_user,writer
+from ..controllers.devices import DeviceController as C
+router=APIRouter()
+@router.get('/devices')
+def devices(db=Depends(db_session),u=Depends(current_user)):return C.list(db)
+@router.post('/devices')
+def create_device(data:DeviceInput,db=Depends(db_session),u=Depends(writer)):return C.create(db,u,data)
+@router.get('/devices/{id}')
+def state(id:int,db=Depends(db_session),u=Depends(current_user)):return C.state(db,id)
+@router.post('/devices/{id}/windows')
+def windows(id:int,data:WindowBatch,db=Depends(db_session),u=Depends(writer)):return C.add_windows(db,u,id,data)
+@router.post('/devices/{id}/readings')
+def readings(id:int,data:ReadingBatch,db=Depends(db_session),u=Depends(writer)):return C.ingest(db,u,id,data)
+@router.post('/devices/{id}/watermark')
+def watermark(id:int,data:WatermarkInput,db=Depends(db_session),u=Depends(writer)):return C.watermark(db,u,id,data.reported_through)
+@router.post('/devices/{id}/conflicts/{conflict_id}/resolve')
+def resolve_conflict(id:int,conflict_id:int,data:ConflictResolution,db=Depends(db_session),u=Depends(writer)):return C.resolve_conflict(db,u,conflict_id,data.value)
+@router.post('/devices/{id}/disputes/{dispute_id}/resolve')
+def resolve_dispute(id:int,dispute_id:int,data:DisputeResolution,db=Depends(db_session),u=Depends(writer)):return C.resolve_dispute(db,u,dispute_id,data.note)
+@router.post('/devices/{id}/seal')
+def seal(id:int,data:SealInput,db=Depends(db_session),u=Depends(writer)):return C.seal(db,u,id,data.idempotency_key)
+@router.get('/batches')
+def batches(db=Depends(db_session),u=Depends(current_user),source_id:int|None=None):return C.batches(db,source_id)
+@router.get('/batches/{id}')
+def batch(id:int,db=Depends(db_session),u=Depends(current_user)):return C.batch(db,id)
+@router.post('/batches/{id}/resume')
+def resume(id:int,db=Depends(db_session),u=Depends(writer)):return C.resume(db,u,id)

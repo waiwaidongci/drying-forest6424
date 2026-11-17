@@ -3,3 +3,4 @@ class RunInput(BaseModel):
     source_id:int
     name:str=Field(min_length=2,max_length=160)
     parameters:dict
+    batch_id:int|None=None

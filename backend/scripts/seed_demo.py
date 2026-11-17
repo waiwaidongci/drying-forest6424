@@ -56,4 +56,9 @@ def seed():
     for id in queued:
         try:queue.rpush('analysis:queue',id)
         except Exception:logging.exception('seed queue unavailable')
+    # 设备日志演示与手录数据并存；已有设备时直接跳过，可重复执行
+    try:
+        from scripts.seed_device_demo import seed as seed_devices
+        seed_devices()
+    except Exception:logging.exception('device seed failed; manual demo data remains')
 if __name__=='__main__':seed()
